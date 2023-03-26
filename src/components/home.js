@@ -13,6 +13,7 @@ function Home() {
     const handleLocate = ()=>{
         navigator.geolocation.getCurrentPosition((pos)=>{
             setLocation(pos);
+            console.log(pos.coords.longitude)
         })
     }
     useEffect(()=>{

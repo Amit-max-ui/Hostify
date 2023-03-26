@@ -4,10 +4,13 @@ import { AiFillCaretLeft, AiFillCaretRight } from 'react-icons/ai';
 import { CiCircleChevDown} from 'react-icons/ci'; 
 import { CiSearch } from 'react-icons/ci'; 
 import { RiWhatsappFill } from 'react-icons/ri'; 
+import {auth, provider} from '../helper/Firebase'
+import { signInWithPhoneNumber } from 'firebase/auth';
+import { display } from '@mui/system';
 
 function Register() {
     const[hostelName, setHostelName] = useState()
-    const[latitude, setLatitude] = useState()
+    const[latitude, setLatitude] = useState(null)
     const[longitude, setLongitude] = useState()
     const[hostType, setHostType] = useState()
     const[stPrice, setStPrice] = useState();
@@ -42,13 +45,25 @@ function Register() {
             setLongitude(pos.coords.longitude);
         })
     }
+    useEffect(()=>{
+        console.log(latitude);
+    }, [latitude])
+    useEffect(()=>{
+        console.log(longitude)
+    }, [longitude])
     const locateIcons ={
-        color: 'blue'
+        color: latitude===null ? 'rgba(255, 0,0,0.5)' : 'rgb(39, 129, 231)',
+    }
+    const [Verify, setVerify] = useState(false);
+    const otpGen = {
+        display: Verify===false ? 'none' : 'flex'
     }
     const nvRxa = {
         height: '100vh',
         background: 'rgb(250, 245, 250)',
-        borderRadius: '10px'
+        borderRadius: '10px',
+        position: 'relative',
+        transform: 'translate(-10px, 0px)'
     }
     const nvRxb = {
         width: '100%',
@@ -194,7 +209,7 @@ function Register() {
     <div>
         <div className='container'>
             <div style={{marginTop: '100px'}} className='row'>
-                <div style={nvRxa} className='sideBar col l3 m12 s12'>
+                <div style={nvRxa} className='sideBar col l3 m12 s12 white z-depth-1 hoverable'>
                     <div style={nvRxb}>
                         <div style={nvRxc}>
                             <div style={nvRxd}>
@@ -225,7 +240,7 @@ function Register() {
                         </div>
                     </div>
                 </div>
-                <div style={nvXca} className='col l8 m12 s12'>
+                <div style={nvXca} className='col l8 m12 s12 z-depth-1'>
                     <div style={nvXcb}>Hostel Information</div>
                     <div style={nvXcc}>
                         <div style={nvXcd}>
@@ -265,7 +280,7 @@ function Register() {
                                 <input placeholder='Enter your Hostel locality, eg. Sector 3 Mahavir Nagar-3' className='locationInput' type="text" />
                                 <div style={locateIcons} className='locateIcons'>
                                     <i style={{pointerEvent: 'none'}} className="material-icons">gps_fixed</i>
-                                    <p className='Detect' onCanPlay={getLocationAdress}>Detect</p>
+                                    <p className='Detect' onClick={getLocationAdress}>Detect</p>
                                 </div>
                             </div>
                         
@@ -275,10 +290,10 @@ function Register() {
                         </div>
                         <div className='lonLat'>
                             <div className='latitude'>
-                                <input className='latInput' placeholder='Latitude' type="text" onChange={(e)=>setLatitude(e.target.value)}/>
+                                <input className='latInput' placeholder='Latitude' value={latitude} type="text" onChange={(e)=>setLatitude(e.target.value)}/>
                             </div>
                             <div className='longitude'>
-                                <input className='lonInput' placeholder='Longitude' type="text" onChange={(e)=>setLongitude(e.target.value)}/>
+                                <input className='lonInput' placeholder='Longitude' value={longitude} type="text" onChange={(e)=>setLongitude(e.target.value)}/>
                             </div>
                         </div>
                     </div>
@@ -297,9 +312,16 @@ function Register() {
                                 <div className='nvBcd'>+91</div>
                                 <input className='nvBce' placeholder='Mobile number of owner' type="text" onChange={(e)=>setPhoneNo(e.target.value)}/>
                             </div>
-                            <div className='nvBcc'>Verify</div>
+                            <div className='nvBcc' onClick={()=>setVerify(true)}>{Verify ? 'Resend OTP' : 'Verify'}</div>
                         </div>
-                        <div className='nvBcf'>
+                        <div style={otpGen} className='OTPVerification'>
+                            <div className='otpGen' >
+                                <input type="text" className='otpInput'/>
+                                {/* <div className='otpVerify'></div> */}
+                            </div>
+                            <div className='submitOTP'>Submit</div>    
+                        </div>
+                    <div className='nvBcf'>
                             <div style={nvBcg} onClick={handlewnotify}></div>
                             <p>Yes, I would like to receive important updates and notifications from Hostlify on my WhatsApp
                             <RiWhatsappFill/></p>

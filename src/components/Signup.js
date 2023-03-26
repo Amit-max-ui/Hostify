@@ -18,9 +18,7 @@ function SignUp() {
       localStorage.setItem("name", res.user.displayName);
       localStorage.setItem("email", res.user.email);
       localStorage.setItem("profilePic", res.user.photoURL);
-      console.log(res);
       history.push('/cart');
-
     })
   }
    

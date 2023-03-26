@@ -4,6 +4,7 @@ import useFetch from '../useFetch';
 import { AiFillStar } from 'react-icons/ai';
 import { BiRupee } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
+import Slider from 'rc-slider';
 // import { height } from '@mui/system';
 //style with nvDx{letter}
 
@@ -11,12 +12,17 @@ function Search() {
     const [radius, setRadius] = useState(0);
     const [price, setPrice] = useState(0);
     const [type, setType] = useState(false);
+    const [filterPrice, setFilterPrice] = useState(5000);
+    const [filterRadius, setFilterRadius] = useState(500);
     const [dataShow, setDataShow] = useState([]);
+    const [filterdbytype, setFilteredByType] = useState(null);
+    const [filterbyprice, setFilterByPrice] = useState(null);
     const [rotate, setRotate] = useState(false);
     const {data, isPending, error} = useFetch('http://localhost:8002/LandMark')
     const [filterdData, setFilterdData] = useState([])
     const [wordEntered, setWordEntered] = useState()
     const [typeValue, setTypeValue] = useState(-1);
+    // const [price, setPrice] = useState(50)
     const handleFilter = (event)=>{
         const wordSearched = event.target.value
         setWordEntered(wordSearched)
@@ -36,7 +42,6 @@ function Search() {
         setRotate(!rotate);
     }
     const hadleType = ()=>{
-        // type===true ? (setType(false); typeValue(-1)) : setType(true);
         if(type===true){
             setType(false);
             setTypeValue(-1);
@@ -44,10 +49,6 @@ function Search() {
         else {
             setType(true);
         }
-    }
-    const handlePrice = ()=>{
-        price === 0 ? setPrice(5) : setPrice(0);
-        setPrice(8);
     }
     const handleRadius = ()=>{
         radius===0 ? setRadius(5) : setRadius(0);
@@ -57,30 +58,48 @@ function Search() {
         setWordEntered('')
         setFilterdData([])
     }
+    const funcfilterbyprice = (e)=>{
+        setFilterPrice(e);
+        let filterbyrate;
+        if(filterdbytype != null){
+            filterbyrate = filterdbytype.filter((item)=>{
+                return item.price <= filterPrice;
+            })
+        }
+        else if(filterdData.length > 0){
+            filterbyrate = filterdData.filter((item)=>{
+                return item.price <= filterPrice;
+            })
+        }
+        else if(data.length > 0){
+            filterbyrate = data.filter((item)=>{
+                return item.price <= filterPrice;
+            })
+        }
+        setFilterByPrice(filterbyrate);
+        setDataShow(filterbyrate);
+    }
     const handleTypeValue=(value)=>{
         setTypeValue(value);
         // let filterAfterType = [...filterdData];
         let filterType;
-        if(filterdData.length===0){
+        if(filterbyprice != null){
+            filterType = filterbyprice.filter((item)=>{
+                return item.type.toString().includes(value.toString());
+            })
+        }
+        else if(filterdData.length===0){
             filterType = data.filter((item)=>{
                 return item.type.toString().includes(value.toString());
             })
-            setDataShow(filterType)
-            console.log("hello world");
         }
         else{
             filterType = filterdData.filter((item)=>{
                 return item.type.toString().includes(value.toString());
             })
-            setDataShow(filterType);
-            console.log(filterType);
         }
-        // else if(data > 0){
-        //     // filterType = data.filter((item)=>{
-        //     //     return item.type.toString().includes(value.toString());
-        //     // })
-        //     // console.log(filterType);
-        // }
+        setFilteredByType(filterType);
+        setDataShow(filterType);
     }
 
     
@@ -342,19 +361,9 @@ function Search() {
         // background: 'black',
         // zIndex: '400',
     }
-    const radiusDrop = {
-        visibility: radius===0 ? 'hidden' : 'visible',
-        transform: 'translate(-5x, -4px)',
-        background: 'red'
-    }
-    const priceDrop = {
-        visibility: price===0 ? 'hidden' : 'visible',
-        transform: 'translate(13px, -4px)',
-        background: 'orange'
-    }
     const typeDrop = {
         visibility: type===false ? 'hidden' : 'visible',
-        transform: 'translate(90px, -430px)',
+        transform: 'translate(905px, -430px)',
         border: '1px solid grey', 
         borderRadius: '10px'
     }
@@ -376,7 +385,7 @@ function Search() {
     }
   return (
     <div>
-        <div style={nvDxa}>
+        <div style={nvDxa} className='nvDxa'>
             <div style={nvDxb}>
                 <form action="">
                     <div style={inputBox}>
@@ -397,12 +406,15 @@ function Search() {
                     </div>
                     <div className='filterItem' style={zvCxx}>
                         <div onClick={handleRadius}>
-                            <span>Radius</span>
-                            <i className="material-icons" onClick={handleRadius}>expand_more</i>
+                            <span>Radius - <small className='deep-orange-text text-accent-3'>{filterRadius} m</small></span>
+                            <input type="range" min ="0" max="5000" value={filterRadius} step="25" className="radiusSlider" onChange={(e)=>setFilterRadius(e.target.value)}/>
+                            
+                            {/* <i className="material-icons" onClick={handleRadius}>expand_more</i> */}
                         </div>
                         <div>
-                            <span>Price</span>
-                            <i className="material-icons" onClick={handlePrice}>expand_more</i>
+                            <span>Price - <small>₹{filterPrice}</small></span>
+                            <input type="range" min="0" max="20000" step="100" value={filterPrice} className='typeSlider' onChange={(e)=>funcfilterbyprice(e.target.value)} />
+                            {/* <i className="material-icons" onClick={handlePrice}>expand_more</i> */}
                         </div>
                         <div>
                             <span>Room type</span>
@@ -410,8 +422,6 @@ function Search() {
                         </div>
                     </div>
                     <div className='row dropdown' style={nvCyb} >
-                        <div style={radiusDrop} className='col l4 radiusDrop'></div>
-                        <div style={priceDrop} className='col l4 priceDrop' ></div>
                         <div style={typeDrop} className="col l3 typeDrop" >
                             <div className='types'>
                                 <span onClick={()=>handleTypeValue(1)}>Boys</span>
